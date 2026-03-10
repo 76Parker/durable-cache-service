@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package cache.v1;
+
+import "api/cache/v1/request_response.proto";
+import "google/protobuf/empty.proto";
+
+
+service Cache {
+  rpc Insert(InsertRequest) returns (google.protobuf.Empty);
+  rpc GetValueByKey(GetRequest) returns (GetResponse);
+}
+
