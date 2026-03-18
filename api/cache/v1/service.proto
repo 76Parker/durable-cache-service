@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 
 
 service Cache {
-  rpc Insert(InsertRequest) returns (google.protobuf.Empty);
-  rpc GetValueByKey(GetRequest) returns (GetResponse);
+  rpc Set(SetRequest) returns (SetResponse);
+  rpc Get(GetRequest) returns (GetResponse);
 }
 

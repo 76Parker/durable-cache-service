@@ -2,12 +2,18 @@ syntax = "proto3";
 
 package cache.v1;
 
-message InsertRequest {
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+message SetRequest {
   string key = 1;
   bytes data = 2;
+  google.protobuf.Duration ttl = 3;
 }
 
-message InsertResponse {}
+message SetResponse {
+  google.protobuf.Timestamp expire_at = 1;
+}
 
 message GetRequest {
   string key = 1;
@@ -15,4 +21,5 @@ message GetRequest {
 
 message GetResponse {
   bytes data = 1;
+  google.protobuf.Timestamp expire_at = 2;
 }
