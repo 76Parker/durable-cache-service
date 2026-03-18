@@ -1,10 +1,10 @@
 syntax = "proto3";
 
+option go_package = "github.com/76Parker/durable-cache-service/api/cache/v1;v1";
+
 package cache.v1;
 
 import "api/cache/v1/request_response.proto";
-import "google/protobuf/empty.proto";
-
 
 service Cache {
   rpc Set(SetRequest) returns (SetResponse);
