@@ -13,7 +13,7 @@ type Cache interface {
 	 Get(key string) (domain.CacheValue, error)
 }
 
-type cacheImpl struct {
+type syncMapCache struct {
 	 m          *sync.Map
 	 expireHeap *ExpireHeap
 	 mu         *sync.Mutex
@@ -21,7 +21,7 @@ type cacheImpl struct {
 }
 
 func NewCache(baseCapacity int) Cache {
-	 c := &cacheImpl{
+	 c := &syncMapCache{
 		  expireHeap: NewExpireHeap(baseCapacity),
 		  mu:         new(sync.Mutex),
 		  wake:       make(chan struct{}, 1),
@@ -30,7 +30,7 @@ func NewCache(baseCapacity int) Cache {
 	 go c.deleteScheduler()
 	 return c
 }
-func (c *cacheImpl) Set(key string, value []byte, ttl time.Duration) (expireAt time.Time) {
+func (c *syncMapCache) Set(key string, value []byte, ttl time.Duration) (expireAt time.Time) {
 	 expiring := time.Now().Add(ttl)
 	 k := strings.TrimSpace(key)
 	 v := domain.CacheValue{
@@ -50,7 +50,7 @@ func (c *cacheImpl) Set(key string, value []byte, ttl time.Duration) (expireAt t
 	 }
 	 return expiring
 }
-func (c *cacheImpl) Get(key string) (value domain.CacheValue, err error) {
+func (c *syncMapCache) Get(key string) (value domain.CacheValue, err error) {
 	 k := strings.TrimSpace(key)
 	 v, ok := c.m.Load(k)
 	 if !ok {
@@ -59,7 +59,7 @@ func (c *cacheImpl) Get(key string) (value domain.CacheValue, err error) {
 	 return v.(domain.CacheValue), nil
 }
 
-func (c *cacheImpl) deleteScheduler() {
+func (c *syncMapCache) deleteScheduler() {
 	 var t *time.Timer
 	 for {
 		  c.mu.Lock()
