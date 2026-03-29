@@ -1,6 +1,7 @@
 package service
 
 import (
+	 "context"
 	 "strings"
 	 "sync"
 	 "time"
@@ -9,8 +10,8 @@ import (
 )
 
 type Cache interface {
-	 Set(key string, value []byte, ttl time.Duration) (expireAt time.Time)
-	 Get(key string) (domain.CacheValue, error)
+	 Set(ctx context.Context, key string, value []byte, ttl time.Duration) (expireAt time.Time, err error)
+	 Get(ctx context.Context, key string) (value domain.CacheValue, err error)
 }
 
 type syncMapCache struct {
@@ -30,7 +31,10 @@ func NewCache(baseCapacity int) Cache {
 	 go c.deleteScheduler()
 	 return c
 }
-func (c *syncMapCache) Set(key string, value []byte, ttl time.Duration) (expireAt time.Time) {
+func (c *syncMapCache) Set(ctx context.Context, key string, value []byte, ttl time.Duration) (expireAt time.Time, err error) {
+	 if ctx.Done() != nil {
+		  return time.Time{}, ctx.Err()
+	 }
 	 expiring := time.Now().Add(ttl)
 	 k := strings.TrimSpace(key)
 	 v := domain.CacheValue{
@@ -48,9 +52,12 @@ func (c *syncMapCache) Set(key string, value []byte, ttl time.Duration) (expireA
 		  default:
 		  }
 	 }
-	 return expiring
+	 return expiring, nil
 }
-func (c *syncMapCache) Get(key string) (value domain.CacheValue, err error) {
+func (c *syncMapCache) Get(ctx context.Context, key string) (value domain.CacheValue, err error) {
+	 if ctx.Done() != nil {
+		  return domain.CacheValue{}, ctx.Err()
+	 }
 	 k := strings.TrimSpace(key)
 	 v, ok := c.m.Load(k)
 	 if !ok {
