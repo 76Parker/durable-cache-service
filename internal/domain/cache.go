@@ -1,6 +1,13 @@
 package domain
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	ErrKeyNotFound = errors.New("key not found")
+)
 
 type CacheValue struct {
 	Value    []byte

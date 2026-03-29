@@ -17,5 +17,5 @@ func (c *CacheServerImpl) Get(ctx context.Context, req *v1.GetRequest) (*v1.GetR
 }
 
 func NewCacheServer() v1.CacheServer {
-	return
+	return nil
 }
